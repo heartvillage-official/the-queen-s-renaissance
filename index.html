@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE RENAISSANCE 19 - HEART VILLAGE ATELIER</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Editorial & Luxury feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;600&family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Three.js for 3D Intro -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- GSAP for High-end Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            black: '#07050a',     // Deepest void
+                            magenta: '#D41C54',   // Striking, pop luxury pink/magenta
+                            wine: '#5a0a22',      // Deep elegant wine
+                            gold: '#E6C280',      // Soft champagne gold
+                            cream: '#F4F1ED',     // Editorial background
+                        }
+                    },
+                    fontFamily: {
+                        serifKR: ['"Noto Serif KR"', 'serif'],
+                        cinzel: ['"Cinzel"', 'serif'],
+                        cormorant: ['"Cormorant Garamond"', 'serif'],
+                        mono: ['"Space Mono"', 'monospace'], // For receipt
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            background-color: #07050a;
+            color: #F4F1ED;
+            font-family: 'Noto Serif KR', serif;
+            overflow-x: hidden;
+            overscroll-behavior: none;
+        }
+
+        /* -----------------------------------------------------------
+           1. 3D Intro Styles
+        ----------------------------------------------------------- */
+        #canvas-container {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 50;
+            pointer-events: auto; 
+        }
+
+        #intro-ui {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 60;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none; 
+        }
+
+        .enter-btn {
+            pointer-events: auto;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+        
+        .enter-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 0; height: 0;
+            background: rgba(212, 28, 84, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+        
+        .enter-btn:hover::before { width: 300px; height: 300px; }
+
+        /* -----------------------------------------------------------
+           2. Main Content Styles
+        ----------------------------------------------------------- */
+        #main-content {
+            opacity: 0;
+            visibility: hidden;
+            position: relative;
+            z-index: 10;
+            background-color: #07050a; /* Dark luxury background */
+            color: #F4F1ED;
+        }
+
+        .text-outline {
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(244, 241, 237, 0.1);
+        }
+
+        /* Gradient Text */
+        .text-gradient-gold {
+            background: linear-gradient(to right, #E6C280, #fff, #E6C280);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        /* -----------------------------------------------------------
+           3. Receipt Concept Styles (Gucci/Luxury Tag)
+        ----------------------------------------------------------- */
+        .luxury-receipt {
+            background-color: #F4F1ED;
+            color: #07050a;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Zigzag cut effect for receipt */
+        .luxury-receipt::before, .luxury-receipt::after {
+            content: '';
+            position: absolute;
+            left: 0; right: 0;
+            height: 8px;
+            background-image: linear-gradient(135deg, transparent 50%, #F4F1ED 50%), linear-gradient(-135deg, transparent 50%, #F4F1ED 50%);
+            background-size: 16px 100%;
+        }
+        .luxury-receipt::before { top: -8px; }
+        .luxury-receipt::after {
+            bottom: -8px;
+            background-image: linear-gradient(135deg, #F4F1ED 50%, transparent 50%), linear-gradient(-135deg, #F4F1ED 50%, transparent 50%);
+        }
+
+        .receipt-dashed-line {
+            border-bottom: 2px dashed #d1c8c1;
+            margin: 2rem 0;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #07050a; }
+        ::-webkit-scrollbar-thumb { background: #D41C54; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================
+         ACT 0 : THE 3D ATELIER INTRO
+    =========================================== -->
+    <div id="canvas-container"></div>
+    
+    <div id="intro-ui">
+        <div class="absolute top-12 w-full text-center">
+            <p class="font-cinzel tracking-[0.5em] text-xs text-brand-gold/70">HEART VILLAGE</p>
+        </div>
+        
+        <div class="text-center mt-20 z-10">
+            <h1 class="font-cinzel text-5xl md:text-7xl font-light tracking-widest mb-6 text-white drop-shadow-[0_0_20px_rgba(212,28,84,0.4)]">
+                ATELIER
+            </h1>
+            <p class="font-serifKR font-light tracking-[0.2em] text-brand-gold/80 mb-16 text-sm md:text-base">
+                당신이라는 원석을 완벽한 명품으로
+            </p>
+            
+            <button id="enter-btn" class="enter-btn font-cinzel tracking-[0.3em] text-xs text-white border border-brand-magenta/50 px-10 py-4 uppercase bg-black/30 backdrop-blur-sm hover:border-brand-magenta hover:text-brand-magenta transition-colors duration-500">
+                Unlock The Masterpiece
+            </button>
+        </div>
+    </div>
+
+
+    <!-- ==========================================
+         ACT 1~3 : THE EDITORIAL BOUTIQUE (MAIN)
+    =========================================== -->
+    <div id="main-content" class="min-h-screen">
+        
+        <!-- Navigation -->
+        <nav class="fixed top-0 w-full z-40 bg-brand-black/80 backdrop-blur-md text-brand-cream px-8 py-6 flex justify-between items-center opacity-0 nav-anim">
+            <div class="font-cinzel font-bold tracking-widest text-xl">HV.</div>
+            <div class="font-serifKR text-xs tracking-[0.3em] font-light text-brand-gold">THE RENAISSANCE 19</div>
+        </nav>
+
+        <!-- ==========================================
+             CHAPTER I. THE PHILOSOPHY (철학의 깊이)
+        =========================================== -->
+        <section class="min-h-screen relative flex flex-col justify-center px-6 md:px-20 pt-32 pb-20 overflow-hidden">
+            <div class="absolute right-[-5%] top-[10%] text-[15vw] font-cinzel font-bold text-outline opacity-20 leading-none whitespace-nowrap pointer-events-none hero-text-bg">
+                PHILOSOPHY
+            </div>
+            
+            <div class="max-w-5xl z-10 mx-auto w-full">
+                <div class="gsap-fade-up text-center mb-24">
+                    <p class="font-cinzel text-brand-magenta tracking-[0.3em] text-sm mb-4">CHAPTER I</p>
+                    <h2 class="font-cormorant text-5xl md:text-7xl italic text-brand-cream leading-[1.1] mb-8">
+                        The Artisan's Truth.
+                    </h2>
+                    <p class="font-serifKR text-lg md:text-xl font-light text-brand-cream/80 leading-relaxed max-w-2xl mx-auto">
+                        "진정한 럭셔리는 억지로 형태를 잡는 것이 아닙니다.<br>비워냄으로써 스스로 빛을 발하게 하는 것, 그것이 세공의 진실입니다."
+                    </p>
+                </div>
+
+                <!-- Deep Principles (장청 & 몸청) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 relative">
+                    <!-- 중앙 연결선 -->
+                    <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-brand-gold/0 via-brand-gold/50 to-brand-gold/0 transform -translate-x-1/2"></div>
+
+                    <!-- 장청 원리 -->
+                    <div class="gsap-fade-right text-right pr-0 md:pr-12 relative">
+                        <div class="hidden md:block absolute right-[-5px] top-2 w-2 h-2 rounded-full bg-brand-gold shadow-[0_0_10px_rgba(230,194,128,0.8)]"></div>
+                        <h3 class="font-cinzel text-3xl text-brand-gold mb-2">01. PURIFY (장청)</h3>
+                        <h4 class="font-serifKR font-bold text-lg mb-6 tracking-widest">"압력을 비우고 온기를 채우다"</h4>
+                        <p class="font-serifKR font-light text-brand-cream/70 leading-loose text-sm text-justify md:text-right">
+                            명품의 뼈대를 잡는 첫 번째 과정입니다. 복강(뱃속)의 높아진 압력은 혈액순환을 막고 내면의 온도를 차갑게 만듭니다. 우리는 거친 식단을 멈추고 자연의 원료를 통해 잔류물과 가스를 배출합니다. <strong class="text-brand-magenta font-normal">압력이 빠져나간 자리에 따뜻한 생기가 돌기 시작하며,</strong> 여왕님의 원피는 가장 부드럽고 수용적인 상태로 회복됩니다.
+                        </p>
+                    </div>
+
+                    <!-- 몸청 원리 -->
+                    <div class="gsap-fade-left text-left pl-0 md:pl-12 mt-12 md:mt-40 relative">
+                        <div class="hidden md:block absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-brand-magenta shadow-[0_0_10px_rgba(212,28,84,0.8)]"></div>
+                        <h3 class="font-cinzel text-3xl text-brand-magenta mb-2">02. RESTORE (몸청)</h3>
+                        <h4 class="font-serifKR font-bold text-lg mb-6 tracking-widest">"내면의 장인을 깨우는 완벽한 휴식"</h4>
+                        <p class="font-serifKR font-light text-brand-cream/70 leading-loose text-sm text-justify">
+                            가장 깊은 곳을 정밀 세공하는 시간입니다. 소화기관에 완벽한 휴식(단식)을 부여하면, 높아진 체온 속에서 <strong class="text-brand-gold font-normal">여왕님 내면의 장인(백혈구와 효소)</strong>들이 스스로 깨어납니다. 억지로 태우는 고통스러운 과정이 아닙니다. 장인들은 굶주림 속에서 불필요한 찌꺼기를 스스로 청소(오토파지)하며, 가장 투명하고 견고한 실루엣을 완성합니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             THE 19-DAY CALENDAR (타임라인)
+        =========================================== -->
+        <section class="py-24 bg-brand-black border-y border-white/5 relative">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="text-center mb-16 gsap-fade-up">
+                    <h3 class="font-cinzel text-brand-gold tracking-[0.4em] text-xs mb-4">THE TIMELINE</h3>
+                    <h2 class="font-serifKR text-3xl font-light">19일의 마스터 스케줄</h2>
+                </div>
+
+                <!-- Calendar Timeline -->
+                <div class="flex flex-col md:flex-row justify-between gap-8 gsap-fade-up">
+                    
+                    <!-- ACT 1 -->
+                    <div class="flex-1 border border-white/10 p-8 rounded-sm bg-white/[0.02] hover:bg-white/[0.05] transition-colors">
+                        <h4 class="font-cinzel text-brand-gold text-xl mb-2">ACT 1. Foundation</h4>
+                        <p class="font-serifKR text-xs tracking-widest text-brand-cream/50 mb-6">형태의 탄생 (Day 1 - 6)</p>
+                        <div class="space-y-3 font-mono text-sm">
+                            <div class="flex items-center gap-3">
+                                <span class="w-3 h-3 bg-brand-gold rounded-full shadow-[0_0_8px_#E6C280]"></span>
+                                <span class="text-brand-cream/80">Day 1-3 : 장청 (Purify)</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="w-3 h-3 bg-brand-magenta rounded-full shadow-[0_0_8px_#D41C54]"></span>
+                                <span class="text-brand-cream/80">Day 4-6 : 몸청 (Restore)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ACT 2 -->
+                    <div class="flex-1 border border-white/10 p-8 rounded-sm bg-white/[0.02] hover:bg-white/[0.05] transition-colors">
+                        <h4 class="font-cinzel text-brand-gold text-xl mb-2">ACT 2. Silhouette</h4>
+                        <p class="font-serifKR text-xs tracking-widest text-brand-cream/50 mb-6">우아함의 발현 (Day 7 - 12)</p>
+                        <div class="space-y-3 font-mono text-sm">
+                            <div class="flex items-center gap-3">
+                                <span class="w-3 h-3 bg-brand-gold rounded-full shadow-[0_0_8px_#E6C280]"></span>
+                                <span class="text-brand-cream/80">Day 7-9 : 장청 (Purify)</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="w-3 h-3 bg-brand-magenta rounded-full shadow-[0_0_8px_#D41C54]"></span>
+                                <span class="text-brand-cream/80">Day 10-12 : 몸청 (Restore)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ACT 3 -->
+                    <div class="flex-1 border border-white/10 p-8 rounded-sm bg-white/[0.02] hover:bg-white/[0.05] transition-colors relative overflow-hidden">
+                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-brand-magenta/10 rounded-full blur-2xl pointer-events-none"></div>
+                        <h4 class="font-cinzel text-brand-gold text-xl mb-2">ACT 3. Crown Jewel</h4>
+                        <p class="font-serifKR text-xs tracking-widest text-brand-cream/50 mb-6">마스터피스 완성 (Day 13 - 18)</p>
+                        <div class="space-y-3 font-mono text-sm">
+                            <div class="flex items-center gap-3">
+                                <span class="w-3 h-3 bg-brand-gold rounded-full shadow-[0_0_8px_#E6C280]"></span>
+                                <span class="text-brand-cream/80">Day 13-15 : 장청 (Purify)</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="w-3 h-3 bg-brand-magenta rounded-full shadow-[0_0_8px_#D41C54]"></span>
+                                <span class="text-brand-cream/80">Day 16-18 : 몸청 (Restore)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             CHAPTER II. THE MASTER'S JEWELS (보석 제품군)
+        =========================================== -->
+        <section class="py-32 relative bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-wine/20 via-brand-black to-brand-black">
+            <div class="max-w-7xl mx-auto px-6 text-center">
+                <div class="gsap-fade-up mb-20">
+                    <p class="font-cinzel text-brand-magenta tracking-[0.3em] text-sm mb-4">CHAPTER II</p>
+                    <h2 class="font-cormorant text-5xl md:text-6xl italic text-brand-cream mb-6">The Master's Jewels</h2>
+                    <p class="font-serifKR font-light text-brand-cream/60">아틀리에 세공에 사용되는 4가지 시그니처 코어 보석</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Jewel 1 -->
+                    <div class="gsap-fade-up p-8 border border-brand-gold/20 flex flex-col items-center group hover:border-brand-gold/60 transition-colors">
+                        <i data-lucide="gem" class="w-10 h-10 text-brand-cream mb-6 group-hover:text-brand-gold transition-colors"></i>
+                        <h4 class="font-serifKR font-bold text-lg text-white mb-2">프레스티지 허브</h4>
+                        <p class="font-cinzel text-xs text-brand-gold tracking-widest mb-4">BASE GEM : 시원장</p>
+                        <p class="font-serifKR font-light text-xs leading-relaxed text-brand-cream/60">무거운 압력을 덜어내고 거친 결을 부드럽게 정돈하여, 다음 공정을 받아들일 완벽한 베이스를 만드는 정화의 보석.</p>
+                    </div>
+                    <!-- Jewel 2 -->
+                    <div class="gsap-fade-up p-8 border border-brand-gold/20 flex flex-col items-center group hover:border-brand-gold/60 transition-colors" style="transition-delay: 100ms;">
+                        <i data-lucide="sparkles" class="w-10 h-10 text-brand-cream mb-6 group-hover:text-brand-gold transition-colors"></i>
+                        <h4 class="font-serifKR font-bold text-lg text-white mb-2">골든 필러</h4>
+                        <p class="font-cinzel text-xs text-brand-gold tracking-widest mb-4">NUTRITION PEARL : 에너지밀</p>
+                        <p class="font-serifKR font-light text-xs leading-relaxed text-brand-cream/60">세포 깊은 곳 빈틈에 9종의 필수 아미노산을 촘촘하게 채워, 쉼의 공정(단식) 중에도 구조가 무너지지 않게 돕는 영양 진주.</p>
+                    </div>
+                    <!-- Jewel 3 -->
+                    <div class="gsap-fade-up p-8 border border-brand-gold/20 flex flex-col items-center group hover:border-brand-gold/60 transition-colors" style="transition-delay: 200ms;">
+                        <i data-lucide="diamond" class="w-10 h-10 text-brand-cream mb-6 group-hover:text-brand-gold transition-colors"></i>
+                        <h4 class="font-serifKR font-bold text-lg text-white mb-2">다이아몬드 코어</h4>
+                        <p class="font-cinzel text-xs text-brand-gold tracking-widest mb-4">IONIZED GEM : 제이칼슘</p>
+                        <p class="font-serifKR font-light text-xs leading-relaxed text-brand-cream/60">산성화된 내면의 밸런스를 중화시키고 뼈대를 견고하게 세워, 흔들리지 않는 명품의 중심을 잡아주는 수용성 이온 보석.</p>
+                    </div>
+                    <!-- Jewel 4 -->
+                    <div class="gsap-fade-up p-8 border border-brand-magenta/30 flex flex-col items-center group hover:border-brand-magenta transition-colors" style="transition-delay: 300ms;">
+                        <i data-lucide="flame" class="w-10 h-10 text-brand-magenta mb-6 group-hover:scale-110 transition-transform"></i>
+                        <h4 class="font-serifKR font-bold text-lg text-white mb-2">웜 오로라</h4>
+                        <p class="font-cinzel text-xs text-brand-magenta tracking-widest mb-4">RED VITALITY : 기적의 해죽순</p>
+                        <p class="font-serifKR font-light text-xs leading-relaxed text-brand-cream/60">매일 아침, 순식간에 위장의 온도를 끌어올려 오랜 냉기를 몰아내고 내면에 생기 넘치는 붉은 온기를 불어넣는 코어 에너지.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             CHAPTER III. THE BESPOKE RECEIPT (구찌 영수증 가이드)
+        =========================================== -->
+        <section class="py-32 bg-brand-cream text-brand-black relative">
+            <div class="max-w-4xl mx-auto px-6">
+                
+                <div class="text-center mb-16 gsap-fade-up">
+                    <p class="font-cinzel text-brand-wine tracking-[0.3em] text-sm mb-4">CHAPTER III</p>
+                    <h2 class="font-cormorant text-5xl italic text-brand-black mb-4">The Bespoke Receipt</h2>
+                    <p class="font-serifKR font-light text-gray-500 text-sm">여왕님을 위해 발행된 6일 공정의 시크릿 맞춤 가이드</p>
+                </div>
+
+                <!-- The Physical Receipt UI -->
+                <div class="luxury-receipt p-8 md:p-16 mx-auto gsap-fade-up">
+                    
+                    <!-- Header -->
+                    <div class="text-center mb-12">
+                        <h1 class="font-cinzel font-bold text-2xl tracking-[0.4em] text-brand-black mb-2">HEART VILLAGE</h1>
+                        <p class="font-mono text-xs tracking-widest text-brand-wine">AUTHORIZED ATELIER WORKSHOP</p>
+                        <div class="receipt-dashed-line"></div>
+                        <p class="font-mono text-sm tracking-widest font-bold">RECEIPT NO. 001-VIP</p>
+                        <p class="font-mono text-xs text-gray-500 mt-2">ITEM: THE RENAISSANCE 19 (6-DAY CYCLE)</p>
+                    </div>
+
+                    <!-- 1-3일차 장청 -->
+                    <div class="mb-12">
+                        <div class="bg-brand-black text-white px-4 py-2 inline-block mb-6">
+                            <h3 class="font-mono text-sm tracking-widest font-bold">SECTION 1 : PURIFY (DAY 1 - 3)</h3>
+                        </div>
+                        
+                        <div class="space-y-8 font-serifKR text-sm">
+                            <!-- 아침 -->
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div class="font-bold text-brand-wine md:text-right">매일 아침</div>
+                                <div class="md:col-span-3">
+                                    <p class="font-bold mb-1">[ 기상 직후 ] 기적의 해죽순 칵테일 마시기</p>
+                                    <p class="text-gray-600 mb-2 font-light">해죽순 차 500ml + 초록 1포 + 천일염 듬뿍 타서 10분 이내 호로록!</p>
+                                    <p class="text-brand-magenta text-xs font-mono tracking-wide">* 공정 원리 : 순식간에 위장 온도 상승! 냉기 OUT!</p>
+                                    
+                                    <p class="font-bold mt-4 mb-1">[ 아침 식사 ] 일반 식사 🚫</p>
+                                    <ul class="list-disc pl-4 text-gray-600 font-light space-y-1">
+                                        <li>에너지밀 1포 (해죽순차 조금 + 소금 타서 걸쭉하게)</li>
+                                        <li>제이칼슘 2알, 땡큐파워 1포, 시원짱 2포</li>
+                                        <li>생유유산균 1포, 루테인 2알, 비타몬 1포</li>
+                                    </ul>
+                                    <p class="text-xs text-brand-wine mt-2 italic">* 모든 제품은 해죽순차와 함께 하나씩 입에 털어서 섭취</p>
+                                </div>
+                            </div>
+                            <!-- 점심 -->
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 border-t border-gray-200 pt-6">
+                                <div class="font-bold text-brand-wine md:text-right">점심 식사</div>
+                                <div class="md:col-span-3">
+                                    <p class="font-bold mb-1">밥 대신 '에너지밀' 식사</p>
+                                    <ul class="list-none text-gray-600 font-light space-y-2">
+                                        <li><span class="font-bold text-brand-black">식전 20분 :</span> 인슈케어 2정</li>
+                                        <li><span class="font-bold text-brand-black">식후 즉시 :</span> 제이칼슘 2알, 생유유산균 1포, 내몸에 초록 1포, 루테인 2알, 비타몬 2포</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- 저녁 -->
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 border-t border-gray-200 pt-6">
+                                <div class="font-bold text-brand-wine md:text-right">저녁 식사</div>
+                                <div class="md:col-span-3">
+                                    <p class="font-bold mb-1">반찬 식사 + 에너지밀 1포</p>
+                                    <ul class="list-none text-gray-600 font-light space-y-2">
+                                        <li><span class="font-bold text-brand-black">식전 20분 :</span> 인슈케어 2정</li>
+                                        <li><span class="font-bold text-brand-black">식후 즉시 :</span> 제이칼슘 2알, 땡큐파워 1포, 시원짱 2포, 생유유산균 1포, 내몸에 초록 1포, 루테인 2알, 비타몬 2포</li>
+                                    </ul>
+                                    <p class="text-xs text-brand-wine mt-3 font-mono">* NOTE: 첫날 저녁 잠이 안 올 경우, '내 몸에 초록'은 늦은 저녁을 피해 오후 복용 권장.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="receipt-dashed-line"></div>
+
+                    <!-- 4-6일차 몸청 -->
+                    <div class="mb-12">
+                        <div class="bg-brand-magenta text-white px-4 py-2 inline-block mb-6">
+                            <h3 class="font-mono text-sm tracking-widest font-bold">SECTION 2 : RESTORE (DAY 4 - 6)</h3>
+                        </div>
+                        
+                        <div class="space-y-8 font-serifKR text-sm">
+                            <!-- 아침 -->
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div class="font-bold text-brand-wine md:text-right">매일 아침</div>
+                                <div class="md:col-span-3">
+                                    <p class="font-bold mb-1">[ 기상 직후 ] 숨클린이 추가된 해죽순 칵테일!</p>
+                                    <p class="text-gray-600 mb-2 font-light">해죽순 차 500ml + 초록 1포 + <strong class="text-brand-magenta">숨클린 1포</strong> + 천일염 듬뿍</p>
+                                    <p class="text-brand-magenta text-xs font-mono tracking-wide">* 공정 원리 : 임파관 깊은 곳까지 순환 준비!</p>
+                                    
+                                    <p class="font-bold mt-4 mb-1">[ 아침 식사 ] 일반 식사 🚫</p>
+                                    <ul class="list-disc pl-4 text-gray-600 font-light space-y-1">
+                                        <li>에너지밀 1포 (죽처럼 제조)</li>
+                                        <li>제이칼슘 2알, 땡큐파워 1포</li>
+                                        <li>생유유산균 1포, 루테인 2알, 비타몬 1포</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- 점심 -->
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 border-t border-gray-200 pt-6">
+                                <div class="font-bold text-brand-wine md:text-right">점심 식사</div>
+                                <div class="md:col-span-3">
+                                    <p class="font-bold text-brand-magenta mb-2">[ 일반 식사 🚫 ]</p>
+                                    <ul class="list-none text-gray-600 font-light space-y-1">
+                                        <li>에너지밀 1포, 인슈케어 2정</li>
+                                        <li>제이칼슘 2알, 생유유산균 1포, 내몸에 초록 1포, 루테인 2알, 비타몬 2포</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- 저녁 -->
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 border-t border-gray-200 pt-6">
+                                <div class="font-bold text-brand-wine md:text-right">저녁 식사</div>
+                                <div class="md:col-span-3">
+                                    <p class="font-bold text-brand-magenta mb-2">[ 일반 식사 🚫 ]</p>
+                                    <ul class="list-none text-gray-600 font-light space-y-1">
+                                        <li>에너지밀 1포, 인슈케어 2정</li>
+                                        <li>제이칼슘 2알, 땡큐파워 1포, 시원짱 2포, 생유유산균 1포, 내몸에 초록 1포, 루테인 2알, 비타몬 2포</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="receipt-dashed-line"></div>
+
+                    <!-- 반찬 식사 가이드 -->
+                    <div class="bg-[#f0ebe6] p-6 border-l-4 border-brand-wine">
+                        <h4 class="font-cinzel font-bold text-brand-wine mb-3 flex items-center gap-2">
+                            <i data-lucide="utensils" class="w-4 h-4"></i> SPECIAL GUIDE : 반찬 세공법 (1-3일차)
+                        </h4>
+                        <ul class="list-disc pl-5 text-sm text-gray-700 font-light space-y-2 font-serifKR">
+                            <li><strong>밥 대신 에너지밀 1포</strong>, 반찬 식사 위주로 골고루 섭취.</li>
+                            <li><strong>맵고 짜게! :</strong> 천일염(정제염/꽃소금 🚫), 고춧가루, 고추장, 양파, 대파, 쪽파, 마늘, 청양고추 적극 활용.</li>
+                            <li>뿌리류 나물을 데쳐서 골고루 섭취하여 온기를 돕습니다.</li>
+                            <li><strong class="text-brand-magenta">식사와 함께 물 마시기 금지.</strong> 갈증 시에만 드세요.</li>
+                            <li>식후 2시간 이후, 진짜 갈증이 느껴질 때 물을 마십니다.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Footer Barcode -->
+                    <div class="mt-16 text-center">
+                        <p class="font-mono text-xs text-gray-400 mb-2">THANK YOU FOR YOUR TRUST</p>
+                        <p class="font-mono text-2xl tracking-[0.5em] text-brand-black opacity-60">||| || ||| || ||| | || |||</p>
+                        <p class="font-mono text-xs mt-2 font-bold">19 DAYS MASTERPIECE</p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </div> <!-- End Main Content -->
+
+    <!-- ==========================================
+         SCRIPTS (Three.js & GSAP)
+    =========================================== -->
+    <script>
+        // Init Icons
+        lucide.createIcons();
+
+        /* -----------------------------------------------------------
+           1. THREE.JS 3D INTRO (유지)
+        ----------------------------------------------------------- */
+        const canvasContainer = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x07050a, 0.002);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        canvasContainer.appendChild(renderer.domElement);
+
+        const geometry = new THREE.IcosahedronGeometry(2, 1);
+        const material = new THREE.MeshStandardMaterial({
+            color: 0x07050a,
+            emissive: 0xD41C54, 
+            emissiveIntensity: 0.2,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.8
+        });
+        const coreObj = new THREE.Mesh(geometry, material);
+        scene.add(coreObj);
+
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 1000;
+        const posArray = new Float32Array(particlesCount * 3);
+        const colorArray = new Float32Array(particlesCount * 3);
+        
+        const colorGold = new THREE.Color(0xE6C280);
+        const colorMagenta = new THREE.Color(0xD41C54);
+
+        for(let i=0; i < particlesCount * 3; i+=3) {
+            posArray[i] = (Math.random() - 0.5) * 15;
+            posArray[i+1] = (Math.random() - 0.5) * 15;
+            posArray[i+2] = (Math.random() - 0.5) * 15;
+            
+            const mixedColor = Math.random() > 0.5 ? colorGold : colorMagenta;
+            colorArray[i] = mixedColor.r;
+            colorArray[i+1] = mixedColor.g;
+            colorArray[i+2] = mixedColor.b;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+        
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.03,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        const pointLight = new THREE.PointLight(0xD41C54, 2);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
+
+        camera.position.z = 6;
+
+        let mouseX = 0; let mouseY = 0;
+        let targetX = 0; let targetY = 0;
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - windowHalfX);
+            mouseY = (event.clientY - windowHalfY);
+        });
+
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            targetX = mouseX * 0.001;
+            targetY = mouseY * 0.001;
+
+            coreObj.rotation.y += 0.005;
+            coreObj.rotation.x += 0.002;
+            
+            particlesMesh.rotation.y = elapsedTime * 0.05;
+            particlesMesh.rotation.x = elapsedTime * 0.02;
+
+            coreObj.position.x += (targetX - coreObj.position.x) * 0.05;
+            coreObj.position.y += (-targetY - coreObj.position.y) * 0.05;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+
+        /* -----------------------------------------------------------
+           2. ENTER ANIMATION & SCROLL REVEALS
+        ----------------------------------------------------------- */
+        gsap.registerPlugin(ScrollTrigger);
+
+        const enterBtn = document.getElementById('enter-btn');
+        const introUI = document.getElementById('intro-ui');
+        const mainContent = document.getElementById('main-content');
+
+        enterBtn.addEventListener('click', () => {
+            document.body.style.overflow = 'hidden';
+
+            gsap.to(camera.position, { z: -5, duration: 2, ease: "power3.inOut" });
+            gsap.to(coreObj.scale, { x: 10, y: 10, z: 10, duration: 2, ease: "power3.inOut" });
+            
+            gsap.to(introUI, { opacity: 0, duration: 1, ease: "power2.inOut" });
+
+            setTimeout(() => {
+                canvasContainer.style.display = 'none';
+                mainContent.style.visibility = 'visible';
+                document.body.style.backgroundColor = '#07050a'; // Dark theme main
+                document.body.style.overflow = ''; 
+                
+                gsap.to(mainContent, { opacity: 1, duration: 1.5, ease: "power2.out" });
+                initScrollAnimations();
+            }, 1800);
+        });
+
+        function initScrollAnimations() {
+            gsap.to('.nav-anim', { opacity: 1, duration: 1, delay: 0.5 });
+
+            gsap.to('.hero-text-bg', {
+                x: -150,
+                scrollTrigger: { trigger: "section", start: "top top", end: "bottom top", scrub: 1 }
+            });
+
+            gsap.utils.toArray('.gsap-fade-up').forEach(elem => {
+                gsap.fromTo(elem, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: "power3.out", scrollTrigger: { trigger: elem, start: "top 85%" } });
+            });
+
+            gsap.utils.toArray('.gsap-fade-left').forEach(elem => {
+                gsap.fromTo(elem, { x: 40, opacity: 0 }, { x: 0, opacity: 1, duration: 1, ease: "power3.out", scrollTrigger: { trigger: elem, start: "top 85%" } });
+            });
+
+            gsap.utils.toArray('.gsap-fade-right').forEach(elem => {
+                gsap.fromTo(elem, { x: -40, opacity: 0 }, { x: 0, opacity: 1, duration: 1, ease: "power3.out", scrollTrigger: { trigger: elem, start: "top 85%" } });
+            });
+        }
+    </script>
+</body>
+</html>

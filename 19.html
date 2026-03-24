@@ -1,511 +1,551 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Sun, Wind, Droplets, Leaf, Sparkles, Coffee, Sunrise, Moon, Info, 
-  ShieldCheck, Ban, AlertTriangle, UtensilsCrossed, CheckCircle2,
-  HeartPulse, ArrowDown, Activity, BatteryCharging, RefreshCw, Flame
-} from 'lucide-react';
-
-// 부드러운 스크롤 페이드인 애니메이션 컴포넌트
-const FadeIn = ({ children, delay = 0, className = "" }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const domRef = useRef();
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      });
-    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>르네상스 19일 프로젝트</title>
     
-    if (domRef.current) observer.observe(domRef.current);
-    return () => { if (domRef.current) observer.unobserve(domRef.current); };
-  }, []);
-
-  return (
-    <div 
-      ref={domRef} 
-      className={`transition-all duration-1000 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'} ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
-};
-
-export default function App() {
-  const [activeTab, setActiveTab] = useState('mega'); // 레시피 탭 (메가/기본)
-
-  // 전역 폰트 및 애니메이션 스타일
-  const globalStyles = `
-    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-    body {
-      font-family: 'Pretendard', sans-serif;
-      background-color: #FDFCF9; /* 매우 따뜻하고 부드러운 크림 배경 */
-      color: #4A4542;
-    }
-
-    .interactive-card {
-      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    }
-    .interactive-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
-    }
+    <!-- Babel (JSX 변환) -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     
-    .icon-bounce { transition: transform 0.3s ease; }
-    .interactive-card:hover .icon-bounce {
-      transform: scale(1.15) translateY(-5px);
-    }
-  `;
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-  return (
-    <div className="min-h-screen relative font-sans overflow-hidden">
-      <style>{globalStyles}</style>
-
-      {/* 화사한 봄 파스텔 배경 효과 */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-rose-100/40 blur-[100px] mix-blend-multiply"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-emerald-100/40 blur-[120px] mix-blend-multiply"></div>
-        <div className="absolute top-[40%] right-[10%] w-[30vw] h-[30vw] rounded-full bg-amber-100/30 blur-[80px] mix-blend-multiply"></div>
-      </div>
-
-      <main className="relative z-10 max-w-4xl mx-auto px-5 pt-16 pb-32 space-y-24 md:space-y-32">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         
-        {/* 1. HERO SECTION */}
-        <section className="text-center pt-10 pb-10">
-          <FadeIn>
-            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/80 border border-rose-100 text-rose-500 font-bold text-sm mb-6 shadow-sm backdrop-blur-sm">
-              <Sparkles size={16} /> 하트빌리지 프라이빗 케어
-            </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-stone-800 leading-tight mb-6 tracking-tight">
-              르네상스 19일 <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400">전신 재건축 여정</span>
-            </h1>
-            <p className="text-lg md:text-xl text-stone-500 font-medium leading-relaxed max-w-2xl mx-auto">
-              "태우지 않고 자연스럽게 버리게 합니다." <br className="hidden md:block"/>
-              내 몸의 세포가 스스로 독소를 비워내고 새롭게 태어나는 <br className="hidden md:block"/>
-              만물 소생의 긍정과 편안한 치유 가이드
-            </p>
-            <div className="mt-12 animate-bounce text-stone-300 flex justify-center">
-              <ArrowDown size={32} />
-            </div>
-          </FadeIn>
-        </section>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #FDFCF9; /* 매우 따뜻하고 부드러운 크림 배경 */
+            color: #4A4542;
+        }
 
-        {/* 2. HEALING PRINCIPLE */}
-        <section>
-          <FadeIn>
-            <div className="text-center mb-12">
-              <span className="text-emerald-500 font-bold tracking-widest text-sm mb-2 block">THE PRINCIPLE</span>
-              <h2 className="text-3xl font-extrabold text-stone-800">자연의 이치를 따르는 건강법</h2>
-            </div>
-          </FadeIn>
+        .interactive-card {
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .interactive-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+        }
+        
+        .icon-bounce { transition: transform 0.3s ease; }
+        .interactive-card:hover .icon-bounce {
+            transform: scale(1.15) translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            <FadeIn delay={100} className="h-full">
-              <div className="interactive-card bg-white p-8 rounded-[2rem] border border-stone-100 shadow-sm h-full">
-                <div className="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center mb-5 text-rose-400 icon-bounce">
-                  <Flame size={28} />
-                </div>
-                <h3 className="text-xl font-bold text-stone-800 mb-3">태우지 않고 버립니다</h3>
-                <p className="text-stone-500 text-[15px] leading-relaxed">
-                  과도한 노폐물은 지방에 저장된 독소입니다. 억지로 운동하여 태우려 하면 독한 가스가 나와 세포를 병들게 합니다. 우리는 몸이 알아서 '버리게' 만듭니다.
-                </p>
-              </div>
-            </FadeIn>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
 
-            <FadeIn delay={200} className="h-full">
-              <div className="interactive-card bg-white p-8 rounded-[2rem] border border-stone-100 shadow-sm h-full">
-                <div className="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center mb-5 text-amber-500 icon-bounce">
-                  <Sun size={28} />
-                </div>
-                <h3 className="text-xl font-bold text-stone-800 mb-3">따뜻한 햇볕의 기적</h3>
-                <p className="text-stone-500 text-[15px] leading-relaxed">
-                  강제로 살을 빼려는 바람(운동)은 오히려 옷을 껴입게 만듭니다. 뱃속에 따뜻한 온기(태양)를 채워 스스로 지방을 벗어 던지고 독소를 배출하게 돕습니다.
-                </p>
-              </div>
-            </FadeIn>
+        // 아이콘 렌더링을 위한 래퍼 컴포넌트
+        const Icon = ({ name, size = 24, className = '' }) => {
+            const spanRef = useRef(null);
+            useEffect(() => {
+                if (spanRef.current) {
+                    spanRef.current.innerHTML = `<i data-lucide="${name}" class="${className}" style="width: ${size}px; height: ${size}px; display: block;"></i>`;
+                    lucide.createIcons({ root: spanRef.current });
+                }
+            }, [name, size, className]);
+            return <span ref={spanRef} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: size, height: size }} className={className}></span>;
+        };
 
-            <FadeIn delay={300} className="h-full">
-              <div className="interactive-card bg-white p-8 rounded-[2rem] border border-stone-100 shadow-sm h-full">
-                <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mb-5 text-emerald-500 icon-bounce">
-                  <Droplets size={28} />
-                </div>
-                <h3 className="text-xl font-bold text-stone-800 mb-3">생명의 근원, 천일염</h3>
-                <p className="text-stone-500 text-[15px] leading-relaxed">
-                  자연 그대로의 천일염으로 미네랄을 섭취하면 끈적해진 피를 정화하고 순환 통로를 엽니다. 해독 효소들이 일할 수 있는 완벽한 환경을 만듭니다.
-                </p>
-              </div>
-            </FadeIn>
-          </div>
+        // 부드러운 스크롤 페이드인 애니메이션 컴포넌트
+        const FadeIn = ({ children, delay = 0, className = "" }) => {
+            const [isVisible, setIsVisible] = useState(false);
+            const domRef = useRef();
 
-          <FadeIn delay={400} className="mt-8">
-            <div className="bg-[#F0F9F5] p-8 md:p-10 rounded-[2rem] border border-emerald-100/50">
-              <h3 className="text-xl font-bold text-emerald-800 mb-6 text-center">극적인 신체 변화 3단계</h3>
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl">
-                  <span className="text-emerald-400 font-black text-2xl mb-2 block">01</span>
-                  <h4 className="font-bold text-stone-800 mb-2">막힌 통로 뚫기</h4>
-                  <p className="text-stone-600 text-sm">천일염으로 끈적한 피를 맑게 하고 꽉 막힌 혈관과 장의 순환 통로를 시원하게 엽니다.</p>
-                </div>
-                <div className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl">
-                  <span className="text-emerald-400 font-black text-2xl mb-2 block">02</span>
-                  <h4 className="font-bold text-stone-800 mb-2">독소 배출 & 호르몬</h4>
-                  <p className="text-stone-600 text-sm">유익균이 살아나 행복 호르몬을 자체 생산하며 불면증과 우울감이 씻은 듯 사라집니다.</p>
-                </div>
-                <div className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl">
-                  <span className="text-emerald-400 font-black text-2xl mb-2 block">03</span>
-                  <h4 className="font-bold text-stone-800 mb-2">탄력있는 바디라인</h4>
-                  <p className="text-stone-600 text-sm">독을 배출하면 피부가 팽팽하게 리프팅 되며, 무겁던 부종이 빠지고 본연의 윤곽이 살아납니다.</p>
-                </div>
-              </div>
-            </div>
-          </FadeIn>
-        </section>
-
-        {/* 3. DIET SOLUTION */}
-        <section>
-          <FadeIn>
-            <div className="text-center mb-12">
-              <span className="text-orange-500 font-bold tracking-widest text-sm mb-2 block">DIET SOLUTION</span>
-              <h2 className="text-3xl font-extrabold text-stone-800">체질을 바꾸는 기적의 식사법</h2>
-              <p className="text-stone-500 mt-3 max-w-2xl mx-auto">
-                장이 차가우면 부패균이 독소를 뿜어냅니다. 1~3일차 장청소 기간에는 <br className="hidden md:block"/>
-                쌀밥을 철저히 배제하고, 내 몸의 온도를 올리는 <strong>'반찬식'</strong> 위주로 배부르게 식사합니다.
-              </p>
-            </div>
-          </FadeIn>
-
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
-            <FadeIn delay={100} className="h-full">
-              <div className="interactive-card bg-white p-8 rounded-[2rem] border border-stone-100 shadow-sm h-full">
-                <h3 className="text-xl font-bold text-orange-600 mb-5 flex items-center gap-2"><UtensilsCrossed size={20}/> 밥상 구성 핵심 규칙</h3>
-                <ul className="space-y-4 text-[15px] text-stone-600">
-                  <li className="flex gap-3"><CheckCircle2 size={20} className="text-orange-400 shrink-0 mt-0.5"/><span><b>반드시 데치기:</b> 야채는 무조건 살짝 데쳐서 냉기를 뺍니다. (생야채 금지)</span></li>
-                  <li className="flex gap-3"><CheckCircle2 size={20} className="text-orange-400 shrink-0 mt-0.5"/><span><b>맵고 짭짤하게:</b> 천일염, 고춧가루, 양념장으로 과감하게 조리하세요.</span></li>
-                  <li className="flex gap-3"><CheckCircle2 size={20} className="text-orange-400 shrink-0 mt-0.5"/><span><b>탄수화물 제한:</b> 단순당으로 변해 혈관을 막는 쌀밥(백미)은 절대 지양합니다.</span></li>
-                  <li className="flex gap-3"><CheckCircle2 size={20} className="text-orange-400 shrink-0 mt-0.5"/><span><b>비빔밥 NO:</b> 반찬을 비비지 마시고, 하나씩 고유의 맛을 음미하며 천천히 꼭꼭 씹어드세요.</span></li>
-                </ul>
-              </div>
-            </FadeIn>
-
-            <FadeIn delay={200} className="h-full">
-              <div className="interactive-card bg-white p-8 rounded-[2rem] border border-stone-100 shadow-sm h-full">
-                <h3 className="text-xl font-bold text-emerald-600 mb-5 flex items-center gap-2"><Leaf size={20}/> 생명 반찬 리스트</h3>
-                <div className="space-y-3">
-                  <div className="bg-[#FAF9F7] p-4 rounded-xl">
-                    <b className="text-orange-500 text-sm block mb-1">1. 허브/향신 채소 (몸을 덥힘)</b>
-                    <p className="text-stone-500 text-xs">양파, 강황, 생강, 마늘, 대파, 쪽파, 고춧가루, 청양고추</p>
-                  </div>
-                  <div className="bg-[#FAF9F7] p-4 rounded-xl">
-                    <b className="text-amber-600 text-sm block mb-1">2. 뿌리류 채소 (깊은 양기)</b>
-                    <p className="text-stone-500 text-xs">시금치(데쳐서), 도라지, 더덕, 연근, 우엉, 무 등</p>
-                  </div>
-                  <div className="bg-[#FAF9F7] p-4 rounded-xl">
-                    <b className="text-emerald-600 text-sm block mb-1">3. 발효/젓갈류 (유익균 생성)</b>
-                    <p className="text-stone-500 text-xs">추젓, 새우젓, 김치류(갓김치 등), 된장, 청국장 등</p>
-                  </div>
-                  <div className="bg-[#FAF9F7] p-4 rounded-xl">
-                    <b className="text-blue-500 text-sm block mb-1">4. 해조류 (미네랄의 보고)</b>
-                    <p className="text-stone-500 text-xs">톳, 미역줄기, 다시마, 곱창김 등</p>
-                  </div>
-                </div>
-              </div>
-            </FadeIn>
-          </div>
-
-          {/* 식단 예시 & 절대 금지 */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <FadeIn delay={300} className="h-full">
-              <div className="interactive-card bg-white p-8 rounded-[2rem] border border-stone-100 shadow-sm h-full">
-                <h3 className="text-lg font-bold text-stone-800 mb-4">🍱 실전 반찬식 예시 (1~3일차)</h3>
-                <div className="space-y-3 text-[14px] text-stone-600">
-                  <div className="p-3 bg-stone-50 rounded-xl">
-                    <b className="text-emerald-700">기본 한식 밥상</b><br/>자박한 된장찌개, 데친 시금치, 더덕 고추장 무침, 새우젓
-                  </div>
-                  <div className="p-3 bg-stone-50 rounded-xl">
-                    <b className="text-emerald-700">해독 밥상</b><br/>청국장 찌개(무 듬뿍), 도라지 볶음, 미역줄기 볶음, 갓김치
-                  </div>
-                  <div className="p-3 bg-stone-50 rounded-xl">
-                    <b className="text-emerald-700">향신 밥상</b><br/>양파/마늘/대파 볶음, 연근 조림, 곱창김과 매운 간장 양념장
-                  </div>
-                </div>
-              </div>
-            </FadeIn>
-
-            <FadeIn delay={400} className="h-full">
-              <div className="interactive-card bg-rose-50 p-8 rounded-[2rem] border border-rose-100 shadow-sm h-full">
-                <h3 className="text-lg font-bold text-red-800 mb-4 flex items-center gap-2"><Ban size={18}/> 절대 금지 11가지</h3>
-                <p className="text-[13px] text-red-700/80 mb-4">장의 온도를 떨어뜨리고 부패균의 먹이가 되는 음식들입니다. 반드시 피해주세요!</p>
-                <div className="grid grid-cols-2 gap-2 text-[13px] text-red-900 font-medium">
-                  <div className="bg-white/60 p-2 rounded-lg">1. 모든 과일</div>
-                  <div className="bg-white/60 p-2 rounded-lg">2. 생야채 (익히지 않은 것)</div>
-                  <div className="bg-white/60 p-2 rounded-lg">3. 찬물/음료</div>
-                  <div className="bg-white/60 p-2 rounded-lg">4. 육류 (고기류)</div>
-                  <div className="bg-white/60 p-2 rounded-lg">5. 회 (날생선)</div>
-                  <div className="bg-white/60 p-2 rounded-lg">6. 유제품 (우유/요구르트)</div>
-                  <div className="bg-white/60 p-2 rounded-lg">7. 과도한 단백질</div>
-                  <div className="bg-white/60 p-2 rounded-lg">8. 단순당 (백미/떡/빵)</div>
-                  <div className="bg-white/60 p-2 rounded-lg">9. 밀가루 음식</div>
-                  <div className="bg-white/60 p-2 rounded-lg">10. 커피, 차, 설탕, 꿀</div>
-                  <div className="bg-white/60 p-2 rounded-lg col-span-2 text-center text-red-600 font-bold border border-red-200">11. 저염식 (소금 제한 절대 금지)</div>
-                </div>
-              </div>
-            </FadeIn>
-          </div>
-        </section>
-
-        {/* 4. RECIPES */}
-        <section>
-          <FadeIn>
-            <div className="text-center mb-10">
-              <span className="text-sky-500 font-bold tracking-widest text-sm mb-2 block">19 DAYS CYCLE & RECIPE</span>
-              <h2 className="text-3xl font-extrabold text-stone-800">6일의 기적 레시피</h2>
-              <p className="text-stone-500 mt-3 max-w-2xl mx-auto">
-                안내해 드리는 레시피에 따라 정확히 섭취해 주시면 극적인 변화를 경험합니다.
-              </p>
-            </div>
-          </FadeIn>
-
-          <FadeIn delay={200}>
-            {/* 탭 버튼 */}
-            <div className="flex justify-center mb-8">
-              <div className="inline-flex p-1.5 bg-white rounded-full border border-stone-200 shadow-sm w-full max-w-md">
-                <button 
-                  onClick={() => setActiveTab('mega')}
-                  className={`flex-1 py-3 px-6 rounded-full font-bold text-[15px] transition-all duration-300 ${activeTab === 'mega' ? 'bg-orange-500 text-white shadow-md' : 'text-stone-400 hover:text-stone-800'}`}
-                >
-                  🔥 메가요법 (집중)
-                </button>
-                <button 
-                  onClick={() => setActiveTab('basic')}
-                  className={`flex-1 py-3 px-6 rounded-full font-bold text-[15px] transition-all duration-300 ${activeTab === 'basic' ? 'bg-emerald-500 text-white shadow-md' : 'text-stone-400 hover:text-stone-800'}`}
-                >
-                  🌿 기본요법 (유지)
-                </button>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6 relative">
-              {/* 1~3일차 카드 */}
-              <div className="interactive-card bg-white rounded-[2rem] p-6 md:p-8 shadow-sm border border-stone-100">
-                <div className="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 rounded-lg text-xs font-bold mb-4">제 1단계 비움</div>
-                <h3 className="text-2xl font-bold text-stone-800 mb-6">1~3일차<br/><span className="text-lg text-stone-500 font-medium">반찬식사 장청소 기간</span></h3>
+            useEffect(() => {
+                const observer = new IntersectionObserver(entries => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            setIsVisible(true);
+                        }
+                    });
+                }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
                 
-                <div className="space-y-4">
-                  <div className="pb-4 border-b border-stone-50">
-                    <b className="flex items-center gap-2 text-stone-800 mb-2"><Sunrise size={18} className="text-orange-400"/> 기상 후 공복</b>
-                    <p className="text-[14px] text-stone-600 leading-relaxed">해죽순 차 500ML 따뜻하게 끓이기 + 숨클린 1포 + 내몸에 초록 2포 + 천일염 듬뿍 타서 10분 이내 마시기</p>
-                  </div>
-                  <div className="pb-4 border-b border-stone-50">
-                    <b className="flex items-center gap-2 text-stone-800 mb-2"><Coffee size={18} className="text-amber-500"/> 아침 (식사X)</b>
-                    <p className="text-[14px] text-stone-600 leading-relaxed">인슈케어 2, 에너지 밀 1, 제이칼슘 2, 땡큐파워 1, 시원짱 2, 생유 유산균 <b className="text-orange-500">{activeTab==='mega'?'2포':'1포'}</b>, 루테인 3, 비타몬 <b className="text-orange-500">{activeTab==='mega'?'10포':'1포'}</b></p>
-                  </div>
-                  <div className="pb-4 border-b border-stone-50">
-                    <b className="flex items-center gap-2 text-stone-800 mb-2"><Sun size={18} className="text-red-400"/> 점심 (반찬식사)</b>
-                    <p className="text-[14px] text-stone-600 leading-relaxed">
-                      [식전20분] 인슈케어 2<br/>
-                      [식전/식중] 에너지 밀 1<br/>
-                      [식후반찬] 숨클린 1, 칼슘 2, 생유 <b className="text-orange-500">{activeTab==='mega'?'2포':'1포'}</b>, 초록 2, 루테인 3, 비타몬 <b className="text-orange-500">{activeTab==='mega'?'10포':'2포'}</b>
-                    </p>
-                  </div>
-                  <div>
-                    <b className="flex items-center gap-2 text-stone-800 mb-2"><Moon size={18} className="text-indigo-400"/> 저녁 (반찬식사)</b>
-                    <p className="text-[14px] text-stone-600 leading-relaxed">
-                      [식전20분] 인슈케어 2<br/>
-                      [식전/식중] 에너지 밀 1<br/>
-                      [식후반찬] 숨클린 1, 칼슘 2, 땡큐 1, 시원짱 2, 생유 <b className="text-orange-500">{activeTab==='mega'?'2포':'1포'}</b>, 초록 2, 루테인 3, 비타몬 <b className="text-orange-500">{activeTab==='mega'?'10포':'2포'}</b><br/>
-                      [자기 전] 인슈케어 2, 제이칼슘 2
-                    </p>
-                  </div>
+                if (domRef.current) observer.observe(domRef.current);
+                return () => { if (domRef.current) observer.unobserve(domRef.current); };
+            }, []);
+
+            return (
+                <div 
+                    ref={domRef} 
+                    className={`transition-all duration-1000 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'} ${className}`}
+                    style={{ transitionDelay: `${delay}ms` }}
+                >
+                    {children}
                 </div>
-              </div>
+            );
+        };
 
-              {/* 4~6일차 카드 */}
-              <div className="interactive-card bg-white rounded-[2rem] p-6 md:p-8 shadow-sm border border-stone-100">
-                <div className="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-lg text-xs font-bold mb-4">제 2단계 채움</div>
-                <h3 className="text-2xl font-bold text-stone-800 mb-6">4~6일차<br/><span className="text-lg text-stone-500 font-medium">단식 (일반식사 금지)</span></h3>
-                
-                <div className="space-y-4">
-                  <div className="pb-4 border-b border-stone-50">
-                    <b className="flex items-center gap-2 text-stone-800 mb-2"><Sunrise size={18} className="text-orange-400"/> 기상 후 공복</b>
-                    <p className="text-[14px] text-stone-600 leading-relaxed">해죽순 차 500ML 따뜻하게 끓이기 + 숨클린 1포 + 내몸에 초록 2포 + 천일염 듬뿍 (10분 이내!)</p>
-                  </div>
-                  <div className="pb-4 border-b border-stone-50">
-                    <b className="flex items-center gap-2 text-stone-800 mb-2"><Coffee size={18} className="text-amber-500"/> 아침 (단식)</b>
-                    <p className="text-[14px] text-stone-600 leading-relaxed">인슈케어 2, 에너지 밀 1, 제이칼슘 2, 땡큐파워 1, 생유 유산균 <b className="text-orange-500">{activeTab==='mega'?'2포':'1포'}</b>, 루테인 3, 비타몬 <b className="text-orange-500">{activeTab==='mega'?'10포':'1포'}</b></p>
-                  </div>
-                  <div className="pb-4 border-b border-stone-50">
-                    <b className="flex items-center gap-2 text-stone-800 mb-2"><Sun size={18} className="text-red-400"/> 점심 (단식)</b>
-                    <p className="text-[14px] text-stone-600 leading-relaxed">
-                      에너지 밀 1, 숨클린 1, 제이칼슘 2, 생유 <b className="text-orange-500">{activeTab==='mega'?'2포':'1포'}</b>, 초록 2, 루테인 3, 비타몬 <b className="text-orange-500">{activeTab==='mega'?'10포':'2포'}</b>, 인슈케어 2
-                    </p>
-                  </div>
-                  <div>
-                    <b className="flex items-center gap-2 text-stone-800 mb-2"><Moon size={18} className="text-indigo-400"/> 저녁 (단식)</b>
-                    <p className="text-[14px] text-stone-600 leading-relaxed">
-                      에너지 밀 1, 숨클린 1, 칼슘 2, 땡큐 1, 시원짱 2, 생유 <b className="text-orange-500">{activeTab==='mega'?'2포':'1포'}</b>, 초록 2, 루테인 3, 비타몬 <b className="text-orange-500">{activeTab==='mega'?'10포':'2포'}</b>, 인슈케어 2<br/>
-                      [자기 전] 인슈케어 2, 제이칼슘 2
-                    </p>
-                  </div>
+        function App() {
+            const [activeTab, setActiveTab] = useState('mega'); // 레시피 탭 (메가/기본)
+
+            return (
+                <div className="min-h-screen relative font-sans overflow-hidden">
+                    {/* 화사한 봄 파스텔 배경 효과 */}
+                    <div className="fixed inset-0 pointer-events-none z-0">
+                        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-rose-100/40 blur-[100px] mix-blend-multiply"></div>
+                        <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-emerald-100/40 blur-[120px] mix-blend-multiply"></div>
+                        <div className="absolute top-[40%] right-[10%] w-[30vw] h-[30vw] rounded-full bg-amber-100/30 blur-[80px] mix-blend-multiply"></div>
+                    </div>
+
+                    <main className="relative z-10 max-w-4xl mx-auto px-5 pt-16 pb-32 space-y-24 md:space-y-32">
+                        
+                        {/* 1. HERO SECTION */}
+                        <section className="text-center pt-10 pb-10">
+                            <FadeIn>
+                                <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/80 border border-rose-100 text-rose-500 font-bold text-sm mb-6 shadow-sm backdrop-blur-sm">
+                                    <Icon name="sparkles" size={16} /> 하트빌리지 프라이빗 케어
+                                </div>
+                                <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-stone-800 leading-tight mb-6 tracking-tight">
+                                    르네상스 19일 <br/>
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400">전신 재건축 여정</span>
+                                </h1>
+                                <p className="text-lg md:text-xl text-stone-500 font-medium leading-relaxed max-w-2xl mx-auto">
+                                    "태우지 않고 자연스럽게 버리게 합니다." <br className="hidden md:block"/>
+                                    내 몸의 세포가 스스로 독소를 비워내고 새롭게 태어나는 <br className="hidden md:block"/>
+                                    만물 소생의 긍정과 편안한 치유 가이드
+                                </p>
+                                <div className="mt-12 animate-bounce text-stone-300 flex justify-center">
+                                    <Icon name="arrow-down" size={32} />
+                                </div>
+                            </FadeIn>
+                        </section>
+
+                        {/* 2. HEALING PRINCIPLE */}
+                        <section>
+                            <FadeIn>
+                                <div className="text-center mb-12">
+                                    <span className="text-emerald-500 font-bold tracking-widest text-sm mb-2 block">THE PRINCIPLE</span>
+                                    <h2 className="text-3xl font-extrabold text-stone-800">자연의 이치를 따르는 건강법</h2>
+                                </div>
+                            </FadeIn>
+
+                            <div className="grid md:grid-cols-3 gap-6">
+                                <FadeIn delay={100} className="h-full">
+                                    <div className="interactive-card bg-white p-8 rounded-[2rem] border border-stone-100 shadow-sm h-full">
+                                        <div className="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center mb-5 text-rose-400 icon-bounce">
+                                            <Icon name="flame" size={28} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-stone-800 mb-3">태우지 않고 버립니다</h3>
+                                        <p className="text-stone-500 text-[15px] leading-relaxed">
+                                            과도한 노폐물은 지방에 저장된 독소입니다. 억지로 운동하여 태우려 하면 독한 가스가 나와 세포를 병들게 합니다. 우리는 몸이 알아서 '버리게' 만듭니다.
+                                        </p>
+                                    </div>
+                                </FadeIn>
+
+                                <FadeIn delay={200} className="h-full">
+                                    <div className="interactive-card bg-white p-8 rounded-[2rem] border border-stone-100 shadow-sm h-full">
+                                        <div className="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center mb-5 text-amber-500 icon-bounce">
+                                            <Icon name="sun" size={28} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-stone-800 mb-3">따뜻한 햇볕의 기적</h3>
+                                        <p className="text-stone-500 text-[15px] leading-relaxed">
+                                            강제로 살을 빼려는 바람(운동)은 오히려 옷을 껴입게 만듭니다. 뱃속에 따뜻한 온기(태양)를 채워 스스로 지방을 벗어 던지고 독소를 배출하게 돕습니다.
+                                        </p>
+                                    </div>
+                                </FadeIn>
+
+                                <FadeIn delay={300} className="h-full">
+                                    <div className="interactive-card bg-white p-8 rounded-[2rem] border border-stone-100 shadow-sm h-full">
+                                        <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mb-5 text-emerald-500 icon-bounce">
+                                            <Icon name="droplets" size={28} />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-stone-800 mb-3">생명의 근원, 천일염</h3>
+                                        <p className="text-stone-500 text-[15px] leading-relaxed">
+                                            자연 그대로의 천일염으로 미네랄을 섭취하면 끈적해진 피를 정화하고 순환 통로를 엽니다. 해독 효소들이 일할 수 있는 완벽한 환경을 만듭니다.
+                                        </p>
+                                    </div>
+                                </FadeIn>
+                            </div>
+
+                            <FadeIn delay={400} className="mt-8">
+                                <div className="bg-[#F0F9F5] p-8 md:p-10 rounded-[2rem] border border-emerald-100/50">
+                                    <h3 className="text-xl font-bold text-emerald-800 mb-6 text-center">극적인 신체 변화 3단계</h3>
+                                    <div className="grid md:grid-cols-3 gap-6">
+                                        <div className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl">
+                                            <span className="text-emerald-400 font-black text-2xl mb-2 block">01</span>
+                                            <h4 className="font-bold text-stone-800 mb-2">막힌 통로 뚫기</h4>
+                                            <p className="text-stone-600 text-sm">천일염으로 끈적한 피를 맑게 하고 꽉 막힌 혈관과 장의 순환 통로를 시원하게 엽니다.</p>
+                                        </div>
+                                        <div className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl">
+                                            <span className="text-emerald-400 font-black text-2xl mb-2 block">02</span>
+                                            <h4 className="font-bold text-stone-800 mb-2">독소 배출 & 호르몬</h4>
+                                            <p className="text-stone-600 text-sm">유익균이 살아나 행복 호르몬을 자체 생산하며 불면증과 우울감이 씻은 듯 사라집니다.</p>
+                                        </div>
+                                        <div className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl">
+                                            <span className="text-emerald-400 font-black text-2xl mb-2 block">03</span>
+                                            <h4 className="font-bold text-stone-800 mb-2">탄력있는 바디라인</h4>
+                                            <p className="text-stone-600 text-sm">독을 배출하면 피부가 팽팽하게 리프팅 되며, 무겁던 부종이 빠지고 본연의 윤곽이 살아납니다.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </FadeIn>
+                        </section>
+
+                        {/* 3. DIET SOLUTION */}
+                        <section>
+                            <FadeIn>
+                                <div className="text-center mb-12">
+                                    <span className="text-orange-500 font-bold tracking-widest text-sm mb-2 block">DIET SOLUTION</span>
+                                    <h2 className="text-3xl font-extrabold text-stone-800">체질을 바꾸는 기적의 식사법</h2>
+                                    <p className="text-stone-500 mt-3 max-w-2xl mx-auto">
+                                        장이 차가우면 부패균이 독소를 뿜어냅니다. 1~3일차 장청소 기간에는 <br className="hidden md:block"/>
+                                        쌀밥을 철저히 배제하고, 내 몸의 온도를 올리는 <strong>'반찬식'</strong> 위주로 배부르게 식사합니다.
+                                    </p>
+                                </div>
+                            </FadeIn>
+
+                            <div className="grid md:grid-cols-2 gap-6 mb-6">
+                                <FadeIn delay={100} className="h-full">
+                                    <div className="interactive-card bg-white p-8 rounded-[2rem] border border-stone-100 shadow-sm h-full">
+                                        <h3 className="text-xl font-bold text-orange-600 mb-5 flex items-center gap-2">
+                                            <Icon name="utensils-crossed" size={20}/> 밥상 구성 핵심 규칙
+                                        </h3>
+                                        <ul className="space-y-4 text-[15px] text-stone-600">
+                                            <li className="flex gap-3"><Icon name="check-circle" size={20} className="text-orange-400 shrink-0 mt-0.5"/><span><b>반드시 데치기:</b> 야채는 무조건 살짝 데쳐서 냉기를 뺍니다. (생야채 금지)</span></li>
+                                            <li className="flex gap-3"><Icon name="check-circle" size={20} className="text-orange-400 shrink-0 mt-0.5"/><span><b>맵고 짭짤하게:</b> 천일염, 고춧가루, 양념장으로 과감하게 조리하세요.</span></li>
+                                            <li className="flex gap-3"><Icon name="check-circle" size={20} className="text-orange-400 shrink-0 mt-0.5"/><span><b>탄수화물 제한:</b> 단순당으로 변해 혈관을 막는 쌀밥(백미)은 절대 지양합니다.</span></li>
+                                            <li className="flex gap-3"><Icon name="check-circle" size={20} className="text-orange-400 shrink-0 mt-0.5"/><span><b>비빔밥 NO:</b> 반찬을 비비지 마시고, 하나씩 고유의 맛을 음미하며 천천히 꼭꼭 씹어드세요.</span></li>
+                                        </ul>
+                                    </div>
+                                </FadeIn>
+
+                                <FadeIn delay={200} className="h-full">
+                                    <div className="interactive-card bg-white p-8 rounded-[2rem] border border-stone-100 shadow-sm h-full">
+                                        <h3 className="text-xl font-bold text-emerald-600 mb-5 flex items-center gap-2">
+                                            <Icon name="leaf" size={20}/> 생명 반찬 리스트
+                                        </h3>
+                                        <div className="space-y-3">
+                                            <div className="bg-[#FAF9F7] p-4 rounded-xl">
+                                                <b className="text-orange-500 text-sm block mb-1">1. 허브/향신 채소 (몸을 덥힘)</b>
+                                                <p className="text-stone-500 text-xs">양파, 강황, 생강, 마늘, 대파, 쪽파, 고춧가루, 청양고추</p>
+                                            </div>
+                                            <div className="bg-[#FAF9F7] p-4 rounded-xl">
+                                                <b className="text-amber-600 text-sm block mb-1">2. 뿌리류 채소 (깊은 양기)</b>
+                                                <p className="text-stone-500 text-xs">시금치(데쳐서), 도라지, 더덕, 연근, 우엉, 무 등</p>
+                                            </div>
+                                            <div className="bg-[#FAF9F7] p-4 rounded-xl">
+                                                <b className="text-emerald-600 text-sm block mb-1">3. 발효/젓갈류 (유익균 생성)</b>
+                                                <p className="text-stone-500 text-xs">추젓, 새우젓, 김치류(갓김치 등), 된장, 청국장 등</p>
+                                            </div>
+                                            <div className="bg-[#FAF9F7] p-4 rounded-xl">
+                                                <b className="text-blue-500 text-sm block mb-1">4. 해조류 (미네랄의 보고)</b>
+                                                <p className="text-stone-500 text-xs">톳, 미역줄기, 다시마, 곱창김 등</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </FadeIn>
+                            </div>
+
+                            {/* 식단 예시 & 절대 금지 */}
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <FadeIn delay={300} className="h-full">
+                                    <div className="interactive-card bg-white p-8 rounded-[2rem] border border-stone-100 shadow-sm h-full">
+                                        <h3 className="text-lg font-bold text-stone-800 mb-4">🍱 실전 반찬식 예시 (1~3일차)</h3>
+                                        <div className="space-y-3 text-[14px] text-stone-600">
+                                            <div className="p-3 bg-stone-50 rounded-xl">
+                                                <b className="text-emerald-700">기본 한식 밥상</b><br/>자박한 된장찌개, 데친 시금치, 더덕 고추장 무침, 새우젓
+                                            </div>
+                                            <div className="p-3 bg-stone-50 rounded-xl">
+                                                <b className="text-emerald-700">해독 밥상</b><br/>청국장 찌개(무 듬뿍), 도라지 볶음, 미역줄기 볶음, 갓김치
+                                            </div>
+                                            <div className="p-3 bg-stone-50 rounded-xl">
+                                                <b className="text-emerald-700">향신 밥상</b><br/>양파/마늘/대파 볶음, 연근 조림, 곱창김과 매운 간장 양념장
+                                            </div>
+                                        </div>
+                                    </div>
+                                </FadeIn>
+
+                                <FadeIn delay={400} className="h-full">
+                                    <div className="interactive-card bg-rose-50 p-8 rounded-[2rem] border border-rose-100 shadow-sm h-full">
+                                        <h3 className="text-lg font-bold text-red-800 mb-4 flex items-center gap-2">
+                                            <Icon name="ban" size={18}/> 절대 금지 11가지
+                                        </h3>
+                                        <p className="text-[13px] text-red-700/80 mb-4">장의 온도를 떨어뜨리고 부패균의 먹이가 되는 음식들입니다. 반드시 피해주세요!</p>
+                                        <div className="grid grid-cols-2 gap-2 text-[13px] text-red-900 font-medium">
+                                            <div className="bg-white/60 p-2 rounded-lg">1. 모든 과일</div>
+                                            <div className="bg-white/60 p-2 rounded-lg">2. 생야채 (익히지 않은 것)</div>
+                                            <div className="bg-white/60 p-2 rounded-lg">3. 찬물/음료</div>
+                                            <div className="bg-white/60 p-2 rounded-lg">4. 육류 (고기류)</div>
+                                            <div className="bg-white/60 p-2 rounded-lg">5. 회 (날생선)</div>
+                                            <div className="bg-white/60 p-2 rounded-lg">6. 유제품 (우유/요구르트)</div>
+                                            <div className="bg-white/60 p-2 rounded-lg">7. 과도한 단백질</div>
+                                            <div className="bg-white/60 p-2 rounded-lg">8. 단순당 (백미/떡/빵)</div>
+                                            <div className="bg-white/60 p-2 rounded-lg">9. 밀가루 음식</div>
+                                            <div className="bg-white/60 p-2 rounded-lg">10. 커피, 차, 설탕, 꿀</div>
+                                            <div className="bg-white/60 p-2 rounded-lg col-span-2 text-center text-red-600 font-bold border border-red-200">11. 저염식 (소금 제한 절대 금지)</div>
+                                        </div>
+                                    </div>
+                                </FadeIn>
+                            </div>
+                        </section>
+
+                        {/* 4. RECIPES */}
+                        <section>
+                            <FadeIn>
+                                <div className="text-center mb-10">
+                                    <span className="text-sky-500 font-bold tracking-widest text-sm mb-2 block">19 DAYS CYCLE & RECIPE</span>
+                                    <h2 className="text-3xl font-extrabold text-stone-800">6일의 기적 레시피</h2>
+                                    <p className="text-stone-500 mt-3 max-w-2xl mx-auto">
+                                        안내해 드리는 레시피에 따라 정확히 섭취해 주시면 극적인 변화를 경험합니다.
+                                    </p>
+                                </div>
+                            </FadeIn>
+
+                            <FadeIn delay={200}>
+                                {/* 탭 버튼 */}
+                                <div className="flex justify-center mb-8">
+                                    <div className="inline-flex p-1.5 bg-white rounded-full border border-stone-200 shadow-sm w-full max-w-md">
+                                        <button 
+                                            onClick={() => setActiveTab('mega')}
+                                            className={`flex-1 py-3 px-6 rounded-full font-bold text-[15px] transition-all duration-300 ${activeTab === 'mega' ? 'bg-orange-500 text-white shadow-md' : 'text-stone-400 hover:text-stone-800'}`}
+                                        >
+                                            🔥 메가요법 (집중)
+                                        </button>
+                                        <button 
+                                            onClick={() => setActiveTab('basic')}
+                                            className={`flex-1 py-3 px-6 rounded-full font-bold text-[15px] transition-all duration-300 ${activeTab === 'basic' ? 'bg-emerald-500 text-white shadow-md' : 'text-stone-400 hover:text-stone-800'}`}
+                                        >
+                                            🌿 기본요법 (유지)
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="grid md:grid-cols-2 gap-6 relative">
+                                    {/* 1~3일차 카드 */}
+                                    <div className="interactive-card bg-white rounded-[2rem] p-6 md:p-8 shadow-sm border border-stone-100">
+                                        <div className="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 rounded-lg text-xs font-bold mb-4">제 1단계 비움</div>
+                                        <h3 className="text-2xl font-bold text-stone-800 mb-6">1~3일차<br/><span className="text-lg text-stone-500 font-medium">반찬식사 장청소 기간</span></h3>
+                                        
+                                        <div className="space-y-4">
+                                            <div className="pb-4 border-b border-stone-50">
+                                                <b className="flex items-center gap-2 text-stone-800 mb-2"><Icon name="sunrise" size={18} className="text-orange-400"/> 기상 후 공복</b>
+                                                <p className="text-[14px] text-stone-600 leading-relaxed">해죽순 차 500ML 따뜻하게 끓이기 + 숨클린 1포 + 내몸에 초록 2포 + 천일염 듬뿍 타서 10분 이내 마시기</p>
+                                            </div>
+                                            <div className="pb-4 border-b border-stone-50">
+                                                <b className="flex items-center gap-2 text-stone-800 mb-2"><Icon name="coffee" size={18} className="text-amber-500"/> 아침 (식사X)</b>
+                                                <p className="text-[14px] text-stone-600 leading-relaxed">인슈케어 2, 에너지 밀 1, 제이칼슘 2, 땡큐파워 1, 시원짱 2, 생유 유산균 <b className="text-orange-500">{activeTab==='mega'?'2포':'1포'}</b>, 루테인 3, 비타몬 <b className="text-orange-500">{activeTab==='mega'?'10포':'1포'}</b></p>
+                                            </div>
+                                            <div className="pb-4 border-b border-stone-50">
+                                                <b className="flex items-center gap-2 text-stone-800 mb-2"><Icon name="sun" size={18} className="text-red-400"/> 점심 (반찬식사)</b>
+                                                <p className="text-[14px] text-stone-600 leading-relaxed">
+                                                    [식전20분] 인슈케어 2<br/>
+                                                    [식전/식중] 에너지 밀 1<br/>
+                                                    [식후반찬] 숨클린 1, 칼슘 2, 생유 <b className="text-orange-500">{activeTab==='mega'?'2포':'1포'}</b>, 초록 2, 루테인 3, 비타몬 <b className="text-orange-500">{activeTab==='mega'?'10포':'2포'}</b>
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <b className="flex items-center gap-2 text-stone-800 mb-2"><Icon name="moon" size={18} className="text-indigo-400"/> 저녁 (반찬식사)</b>
+                                                <p className="text-[14px] text-stone-600 leading-relaxed">
+                                                    [식전20분] 인슈케어 2<br/>
+                                                    [식전/식중] 에너지 밀 1<br/>
+                                                    [식후반찬] 숨클린 1, 칼슘 2, 땡큐 1, 시원짱 2, 생유 <b className="text-orange-500">{activeTab==='mega'?'2포':'1포'}</b>, 초록 2, 루테인 3, 비타몬 <b className="text-orange-500">{activeTab==='mega'?'10포':'2포'}</b><br/>
+                                                    [자기 전] 인슈케어 2, 제이칼슘 2
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* 4~6일차 카드 */}
+                                    <div className="interactive-card bg-white rounded-[2rem] p-6 md:p-8 shadow-sm border border-stone-100">
+                                        <div className="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-lg text-xs font-bold mb-4">제 2단계 채움</div>
+                                        <h3 className="text-2xl font-bold text-stone-800 mb-6">4~6일차<br/><span className="text-lg text-stone-500 font-medium">단식 (일반식사 금지)</span></h3>
+                                        
+                                        <div className="space-y-4">
+                                            <div className="pb-4 border-b border-stone-50">
+                                                <b className="flex items-center gap-2 text-stone-800 mb-2"><Icon name="sunrise" size={18} className="text-orange-400"/> 기상 후 공복</b>
+                                                <p className="text-[14px] text-stone-600 leading-relaxed">해죽순 차 500ML 따뜻하게 끓이기 + 숨클린 1포 + 내몸에 초록 2포 + 천일염 듬뿍 (10분 이내!)</p>
+                                            </div>
+                                            <div className="pb-4 border-b border-stone-50">
+                                                <b className="flex items-center gap-2 text-stone-800 mb-2"><Icon name="coffee" size={18} className="text-amber-500"/> 아침 (단식)</b>
+                                                <p className="text-[14px] text-stone-600 leading-relaxed">인슈케어 2, 에너지 밀 1, 제이칼슘 2, 땡큐파워 1, 생유 유산균 <b className="text-orange-500">{activeTab==='mega'?'2포':'1포'}</b>, 루테인 3, 비타몬 <b className="text-orange-500">{activeTab==='mega'?'10포':'1포'}</b></p>
+                                            </div>
+                                            <div className="pb-4 border-b border-stone-50">
+                                                <b className="flex items-center gap-2 text-stone-800 mb-2"><Icon name="sun" size={18} className="text-red-400"/> 점심 (단식)</b>
+                                                <p className="text-[14px] text-stone-600 leading-relaxed">
+                                                    에너지 밀 1, 숨클린 1, 제이칼슘 2, 생유 <b className="text-orange-500">{activeTab==='mega'?'2포':'1포'}</b>, 초록 2, 루테인 3, 비타몬 <b className="text-orange-500">{activeTab==='mega'?'10포':'2포'}</b>, 인슈케어 2
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <b className="flex items-center gap-2 text-stone-800 mb-2"><Icon name="moon" size={18} className="text-indigo-400"/> 저녁 (단식)</b>
+                                                <p className="text-[14px] text-stone-600 leading-relaxed">
+                                                    에너지 밀 1, 숨클린 1, 칼슘 2, 땡큐 1, 시원짱 2, 생유 <b className="text-orange-500">{activeTab==='mega'?'2포':'1포'}</b>, 초록 2, 루테인 3, 비타몬 <b className="text-orange-500">{activeTab==='mega'?'10포':'2포'}</b>, 인슈케어 2<br/>
+                                                    [자기 전] 인슈케어 2, 제이칼슘 2
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </FadeIn>
+                        </section>
+
+                        {/* 5. 19 DAYS CYCLE & LOW BLOOD SUGAR */}
+                        <section>
+                            <FadeIn>
+                                <div className="bg-amber-50 rounded-[2rem] p-8 md:p-10 border border-amber-100/50 relative overflow-hidden">
+                                    <div className="absolute right-0 top-0 w-32 h-32 bg-white/40 rounded-full blur-2xl"></div>
+                                    
+                                    <div className="grid md:grid-cols-2 gap-10 relative z-10">
+                                        <div>
+                                            <h3 className="text-xl font-bold text-amber-900 mb-4 flex items-center gap-2"><Icon name="refresh-cw" size={24} className="text-amber-500"/> 19일 연속 진행 사이클 안내</h3>
+                                            <p className="text-[15px] text-amber-900/80 leading-relaxed mb-4">
+                                                본 프로그램은 6일 단위로 이어지는 총 3막(18일 연속) 과정입니다. <br/>
+                                                1~6일차가 끝나면 <strong>쉬는 날 없이 곧바로 다음 1일차(반찬식)로 연이어서 진행</strong>합니다.
+                                            </p>
+                                            <div className="bg-white/60 p-4 rounded-xl text-sm text-amber-900 font-bold border border-amber-200/50">
+                                                💡 첫 1막(1~6일)은 '메가요법'으로 진행하신 후, 메가요법 제품이 소진되면 필요 제품을 추가 구매하시거나 '기본요법 레시피'로 변경하여 진행해 주시면 됩니다.
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <h3 className="text-xl font-bold text-rose-600 mb-4 flex items-center gap-2"><Icon name="battery-charging" size={24} className="text-rose-400"/> 저혈당 증세 완벽 대처법</h3>
+                                            <p className="text-[15px] text-stone-600 leading-relaxed mb-4">
+                                                프로그램 도중 누구나 <strong>저혈당 증세나 어지럼증</strong>이 올 수 있습니다. 몸이 해독 모드로 전환하며 나타나는 자연스러운 반응이니 당황하지 마세요.
+                                            </p>
+                                            <div className="bg-white p-4 rounded-xl text-sm text-stone-700 font-medium shadow-sm border border-stone-100">
+                                                🍯 이럴 때는 <strong className="text-orange-600">고추장, 에너지밀 1포, 천일염</strong>을 중간중간 드셔주세요! 미네랄 균형이 잡히면서 어지럼증이 부드럽게 완화됩니다.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </FadeIn>
+                        </section>
+
+                        {/* 6. PRODUCTS */}
+                        <section>
+                            <FadeIn>
+                                <div className="text-center mb-10">
+                                    <span className="text-emerald-500 font-bold tracking-widest text-sm mb-2 block">HEALING JEWELS</span>
+                                    <h2 className="text-3xl font-extrabold text-stone-800">세포를 깨우는 보석들</h2>
+                                    <p className="text-stone-500 mt-3">소화 에너지 낭비 없이 세포로 다이렉트 흡수되는 고농축 밥입니다.</p>
+                                </div>
+                            </FadeIn>
+
+                            <FadeIn delay={100}>
+                                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                                    {[
+                                        {n: "에너지 밀", sub: "세포의 완벽한 밥", d: "17종 통곡류, 식물분말, 미네랄. 소화 과정 없이 흡수되어 포만감을 주며 근육 손실을 방어합니다.", iconName: "sun"},
+                                        {n: "생유 유산균", sub: "대자연의 빗자루", d: "100억 생 김치 유산균. 9m 장벽에 굳어있는 숙변과 찌꺼기를 빗자루처럼 긁어내 배출시킵니다.", iconName: "wind"},
+                                        {n: "비타몬", sub: "위대한 대청소부", d: "고농축 메가 비타민C. 장 전체를 유익균이 번식하기 좋은 '약산성'으로 코팅하는 소방수 역할.", iconName: "sparkles"},
+                                        {n: "내몸에 초록", sub: "마른 부종/신장 해독", d: "마테, 녹차(냉성)와 산사자(온성) 배합차. 막힌 신장을 해독해 부종을 시원하게 뺍니다.", iconName: "leaf"},
+                                        {n: "제이칼슘", sub: "천연 신경 안정제", d: "뼈를 채우고 예민해진 신경을 이완시켜 숙면 유도. 산성화되고 끈적해진 피를 맑은 알칼리로 중화.", iconName: "moon"},
+                                        {n: "숨클린", sub: "혈관 속 산소 공급", d: "혈관 속 활성산소를 청소하여 뇌와 모세혈관 끝까지 맑은 산소길을 엽니다.", iconName: "wind"},
+                                        {n: "시원짱", sub: "장내 독소 불도저", d: "무력해진 장 연동 운동 촉진. 숙변과 부패 가스를 밖으로 밀어내 복부 팽만감 해소.", iconName: "droplets"},
+                                        {n: "인슈케어", sub: "대사 정상화", d: "인슐린 저항성 개선. 췌장이 쉴 수 있게 돕고 지방 축적을 막아 대사 스위치를 켭니다.", iconName: "heart-pulse"},
+                                        {n: "땡큐파워", sub: "간 해독 에너지", d: "스트레스로 지친 간을 해독. 미토콘드리아에 활력을 주어 단식 중 극강의 피로 회복을 돕습니다.", iconName: "activity"}
+                                    ].map((item, i) => (
+                                        <div key={i} className="interactive-card bg-white p-5 rounded-2xl border border-stone-100 shadow-sm">
+                                            <div className="flex items-center gap-1.5 mb-2 text-emerald-500 icon-bounce">
+                                                <Icon name={item.iconName} size={18} /> <span className="text-[11px] font-bold tracking-wider">{item.sub}</span>
+                                            </div>
+                                            <h4 className="font-bold text-stone-800 text-lg mb-2">{item.n}</h4>
+                                            <p className="text-stone-500 text-sm leading-relaxed">{item.d}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </FadeIn>
+
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <FadeIn delay={200} className="h-full">
+                                    <div className="bg-[#FAF9F7] p-8 rounded-[2rem] border border-stone-100 h-full">
+                                        <h4 className="font-bold text-lg text-stone-800 mb-4 flex items-center gap-2"><Icon name="coffee" size={24} className="text-emerald-500"/> 전용 제품 완벽 복용법</h4>
+                                        <ul className="space-y-3 text-[14px] text-stone-600">
+                                            <li><strong className="text-emerald-700">기본 음용:</strong> 따뜻한 해죽순 차 + 천일염과 함께 복용!</li>
+                                            <li><strong className="text-emerald-700">인슈케어:</strong> 식전 복용이 가장 좋습니다.</li>
+                                            <li><strong className="text-emerald-700">에너지 밀:</strong> 식사 전 차 반 컵에 타서 죽처럼 꼭꼭 씹어드세요.</li>
+                                            <li><strong className="text-emerald-700">숨클린&초록:</strong> 기상 후 뜨거운 해죽순 칵테일 차로!</li>
+                                            <li><strong className="text-emerald-700">시원짱 (환):</strong> 잇몸에 붙으면 쓰니 물을 머금고 삼키세요.</li>
+                                            <li><strong className="text-emerald-700">제이칼슘:</strong> 물 부족 시 뿜어질 수 있으니 수분 넉넉히!</li>
+                                        </ul>
+                                    </div>
+                                </FadeIn>
+
+                                <FadeIn delay={300} className="h-full">
+                                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-8 rounded-[2rem] border border-amber-100/50 h-full">
+                                        <h4 className="font-bold text-lg text-amber-900 mb-4 flex items-center gap-2"><Icon name="shield-check" size={24} className="text-amber-500"/> 생유+비타몬 메가요법, 안전할까?</h4>
+                                        <p className="text-sm text-amber-800/80 leading-relaxed mb-3">
+                                            <strong className="text-amber-700">내 몸은 '종재기'가 아니라 거대한 '사발'입니다.</strong><br/>
+                                            9m 장벽의 14kg 숙변을 치우려면 사발처럼 쏟아붓는 메가요법이 필수입니다. 다 흡수되지 못한 대량의 비타몬은 장 전체를 완벽한 '약산성'으로 코팅합니다.
+                                        </p>
+                                        <p className="text-sm text-amber-800/80 leading-relaxed">
+                                            하수구가 뚫리고 피가 맑아지면, 백혈구들이 내 몸의 늙은 세포를 스스로 청소하는 <strong>'오토파지(자가포식)'</strong> 재건축이 폭발적으로 일어납니다. 안심하세요!
+                                        </p>
+                                    </div>
+                                </FadeIn>
+                            </div>
+                        </section>
+
+                        {/* 7. CAUTION */}
+                        <section>
+                            <FadeIn>
+                                <div className="bg-white p-8 md:p-12 rounded-[2rem] border border-stone-100 shadow-sm relative overflow-hidden">
+                                    <div className="absolute right-0 bottom-0 opacity-5">
+                                        <Icon name="alert-triangle" size={200} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-stone-800 mb-8 flex items-center gap-3 relative z-10"><Icon name="alert-triangle" size={28} className="text-red-400"/> 프로그램 진행 시 4대 주의사항</h3>
+                                    
+                                    <div className="grid md:grid-cols-2 gap-6 relative z-10">
+                                        <div className="interactive-card bg-[#FAF9F7] p-6 rounded-2xl">
+                                            <div className="text-sky-400 mb-3"><Icon name="droplets" size={24} /></div>
+                                            <strong className="text-stone-800 block mb-2">1. 물을 억지로 많이 마시지 마세요</strong>
+                                            <p className="text-sm text-stone-600 leading-relaxed">과도한 수분 섭취는 몸의 온도 밸런스를 깨뜨려 심각한 '냉기'와 부종을 유발합니다. 물은 오직 갈증이 날 때만 소량씩 드세요.</p>
+                                        </div>
+                                        <div className="interactive-card bg-[#FAF9F7] p-6 rounded-2xl">
+                                            <div className="text-emerald-400 mb-3"><Icon name="wind" size={24} /></div>
+                                            <strong className="text-stone-800 block mb-2">2. 과도한 운동은 지양하세요</strong>
+                                            <p className="text-sm text-stone-600 leading-relaxed">억지로 땀을 빼는 과격한 운동은 오히려 몸을 혹사시키고 지방을 꽉 움켜쥐게 만듭니다. 가벼운 스트레칭이나 산책만으로 충분합니다.</p>
+                                        </div>
+                                        <div className="interactive-card bg-[#FAF9F7] p-6 rounded-2xl">
+                                            <div className="text-amber-400 mb-3"><Icon name="sun" size={24} /></div>
+                                            <strong className="text-stone-800 block mb-2">3. 따뜻한 곳에서 푹 쉬어주세요</strong>
+                                            <p className="text-sm text-stone-600 leading-relaxed">해독은 세포가 스스로 합니다. 뱃속을 따뜻하게 데워주시면, 나그네가 겉옷을 벗듯 몸이 스스로 독소와 지방을 폭발적으로 배출합니다.</p>
+                                        </div>
+                                        <div className="interactive-card bg-[#FAF9F7] p-6 rounded-2xl">
+                                            <div className="text-rose-400 mb-3"><Icon name="shield-check" size={24} /></div>
+                                            <strong className="text-stone-800 block mb-2">4. 복용 중인 약물이 있다면 사전 공유 필수</strong>
+                                            <p className="text-sm text-stone-600 leading-relaxed">현재 정기적으로 드시는 병원 처방약(혈압/당뇨 등)이 있으신 경우, 무단으로 끊지 마시고 반드시 사전 상의하여 스케줄을 조절하세요.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </FadeIn>
+                        </section>
+
+                        {/* 8. OUTRO */}
+                        <section className="text-center pt-10 pb-10">
+                            <FadeIn>
+                                <h2 className="text-2xl md:text-3xl font-bold text-emerald-700 mb-6 leading-relaxed">
+                                    "알고 봤더니 다이어트와 건강 회복은<br className="md:hidden"/> 너무나 쉬운 거였구나."
+                                </h2>
+                                <p className="text-stone-500 text-[15px] md:text-lg leading-relaxed mb-8 font-medium">
+                                    19일 후, 고객님은 분명 이렇게 느끼시게 될 것입니다.<br/>
+                                    자연의 이치를 굳게 믿어주시고 가장 편안한 마음으로 이 여정을 즐겨주세요.<br/>
+                                    모든 과정은 저희 하트빌리지가 완벽하게 호위하겠습니다.
+                                </p>
+                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white text-emerald-400 shadow-sm border border-stone-100">
+                                    <Icon name="leaf" size={32} />
+                                </div>
+                            </FadeIn>
+                        </section>
+
+                    </main>
                 </div>
-              </div>
-            </div>
-          </FadeIn>
-        </section>
+            );
+        }
 
-        {/* 5. 19 DAYS CYCLE & LOW BLOOD SUGAR */}
-        <section>
-          <FadeIn>
-            <div className="bg-amber-50 rounded-[2rem] p-8 md:p-10 border border-amber-100/50 relative overflow-hidden">
-              <div className="absolute right-0 top-0 w-32 h-32 bg-white/40 rounded-full blur-2xl"></div>
-              
-              <div className="grid md:grid-cols-2 gap-10 relative z-10">
-                <div>
-                  <h3 className="text-xl font-bold text-amber-900 mb-4 flex items-center gap-2"><RefreshCw className="text-amber-500"/> 19일 연속 진행 사이클 안내</h3>
-                  <p className="text-[15px] text-amber-900/80 leading-relaxed mb-4">
-                    본 프로그램은 6일 단위로 이어지는 총 3막(18일 연속) 과정입니다. <br/>
-                    1~6일차가 끝나면 <strong>쉬는 날 없이 곧바로 다음 1일차(반찬식)로 연이어서 진행</strong>합니다.
-                  </p>
-                  <div className="bg-white/60 p-4 rounded-xl text-sm text-amber-900 font-bold border border-amber-200/50">
-                    💡 첫 1막(1~6일)은 '메가요법'으로 진행하신 후, 메가요법 제품이 소진되면 필요 제품을 추가 구매하시거나 '기본요법 레시피'로 변경하여 진행해 주시면 됩니다.
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-xl font-bold text-rose-600 mb-4 flex items-center gap-2"><BatteryCharging className="text-rose-400"/> 저혈당 증세 완벽 대처법</h3>
-                  <p className="text-[15px] text-stone-600 leading-relaxed mb-4">
-                    프로그램 도중 누구나 <strong>저혈당 증세나 어지럼증</strong>이 올 수 있습니다. 몸이 해독 모드로 전환하며 나타나는 자연스러운 반응이니 당황하지 마세요.
-                  </p>
-                  <div className="bg-white p-4 rounded-xl text-sm text-stone-700 font-medium shadow-sm border border-stone-100">
-                    🍯 이럴 때는 <strong className="text-orange-600">고추장, 에너지밀 1포, 천일염</strong>을 중간중간 드셔주세요! 미네랄 균형이 잡히면서 어지럼증이 부드럽게 완화됩니다.
-                  </div>
-                </div>
-              </div>
-            </div>
-          </FadeIn>
-        </section>
-
-        {/* 6. PRODUCTS */}
-        <section>
-          <FadeIn>
-            <div className="text-center mb-10">
-              <span className="text-emerald-500 font-bold tracking-widest text-sm mb-2 block">HEALING JEWELS</span>
-              <h2 className="text-3xl font-extrabold text-stone-800">세포를 깨우는 보석들</h2>
-              <p className="text-stone-500 mt-3">소화 에너지 낭비 없이 세포로 다이렉트 흡수되는 고농축 밥입니다.</p>
-            </div>
-          </FadeIn>
-
-          <FadeIn delay={100}>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-              {[
-                {n: "에너지 밀", sub: "세포의 완벽한 밥", d: "17종 통곡류, 식물분말, 미네랄. 소화 과정 없이 흡수되어 포만감을 주며 근육 손실을 방어합니다.", icon: <Sun size={18}/>},
-                {n: "생유 유산균", sub: "대자연의 빗자루", d: "100억 생 김치 유산균. 9m 장벽에 굳어있는 숙변과 찌꺼기를 빗자루처럼 긁어내 배출시킵니다.", icon: <Wind size={18}/>},
-                {n: "비타몬", sub: "위대한 대청소부", d: "고농축 메가 비타민C. 장 전체를 유익균이 번식하기 좋은 '약산성'으로 코팅하는 소방수 역할.", icon: <Sparkles size={18}/>},
-                {n: "내몸에 초록", sub: "마른 부종/신장 해독", d: "마테, 녹차(냉성)와 산사자(온성) 배합차. 막힌 신장을 해독해 부종을 시원하게 뺍니다.", icon: <Leaf size={18}/>},
-                {n: "제이칼슘", sub: "천연 신경 안정제", d: "뼈를 채우고 예민해진 신경을 이완시켜 숙면 유도. 산성화되고 끈적해진 피를 맑은 알칼리로 중화.", icon: <Moon size={18}/>},
-                {n: "숨클린", sub: "혈관 속 산소 공급", d: "혈관 속 활성산소를 청소하여 뇌와 모세혈관 끝까지 맑은 산소길을 엽니다.", icon: <Wind size={18}/>},
-                {n: "시원짱", sub: "장내 독소 불도저", d: "무력해진 장 연동 운동 촉진. 숙변과 부패 가스를 밖으로 밀어내 복부 팽만감 해소.", icon: <Droplets size={18}/>},
-                {n: "인슈케어", sub: "대사 정상화", d: "인슐린 저항성 개선. 췌장이 쉴 수 있게 돕고 지방 축적을 막아 대사 스위치를 켭니다.", icon: <HeartPulse size={18}/>},
-                {n: "땡큐파워", sub: "간 해독 에너지", d: "스트레스로 지친 간을 해독. 미토콘드리아에 활력을 주어 단식 중 극강의 피로 회복을 돕습니다.", icon: <Activity size={18}/>}
-              ].map((item, i) => (
-                <div key={i} className="interactive-card bg-white p-5 rounded-2xl border border-stone-100 shadow-sm">
-                  <div className="flex items-center gap-1.5 mb-2 text-emerald-500 icon-bounce">
-                    {item.icon} <span className="text-[11px] font-bold tracking-wider">{item.sub}</span>
-                  </div>
-                  <h4 className="font-bold text-stone-800 text-lg mb-2">{item.n}</h4>
-                  <p className="text-stone-500 text-sm leading-relaxed">{item.d}</p>
-                </div>
-              ))}
-            </div>
-          </FadeIn>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <FadeIn delay={200} className="h-full">
-              <div className="bg-[#FAF9F7] p-8 rounded-[2rem] border border-stone-100 h-full">
-                <h4 className="font-bold text-lg text-stone-800 mb-4 flex items-center gap-2"><Coffee className="text-emerald-500"/> 전용 제품 완벽 복용법</h4>
-                <ul className="space-y-3 text-[14px] text-stone-600">
-                  <li><strong className="text-emerald-700">기본 음용:</strong> 따뜻한 해죽순 차 + 천일염과 함께 복용!</li>
-                  <li><strong className="text-emerald-700">인슈케어:</strong> 식전 복용이 가장 좋습니다.</li>
-                  <li><strong className="text-emerald-700">에너지 밀:</strong> 식사 전 차 반 컵에 타서 죽처럼 꼭꼭 씹어드세요.</li>
-                  <li><strong className="text-emerald-700">숨클린&초록:</strong> 기상 후 뜨거운 해죽순 칵테일 차로!</li>
-                  <li><strong className="text-emerald-700">시원짱 (환):</strong> 잇몸에 붙으면 쓰니 물을 머금고 삼키세요.</li>
-                  <li><strong className="text-emerald-700">제이칼슘:</strong> 물 부족 시 뿜어질 수 있으니 수분 넉넉히!</li>
-                </ul>
-              </div>
-            </FadeIn>
-
-            <FadeIn delay={300} className="h-full">
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-8 rounded-[2rem] border border-amber-100/50 h-full">
-                <h4 className="font-bold text-lg text-amber-900 mb-4 flex items-center gap-2"><ShieldCheck className="text-amber-500"/> 생유+비타몬 메가요법, 안전할까?</h4>
-                <p className="text-sm text-amber-800/80 leading-relaxed mb-3">
-                  <strong className="text-amber-700">내 몸은 '종재기'가 아니라 거대한 '사발'입니다.</strong><br/>
-                  9m 장벽의 14kg 숙변을 치우려면 사발처럼 쏟아붓는 메가요법이 필수입니다. 다 흡수되지 못한 대량의 비타몬은 장 전체를 완벽한 '약산성'으로 코팅합니다.
-                </p>
-                <p className="text-sm text-amber-800/80 leading-relaxed">
-                  하수구가 뚫리고 피가 맑아지면, 백혈구들이 내 몸의 늙은 세포를 스스로 청소하는 <strong>'오토파지(자가포식)'</strong> 재건축이 폭발적으로 일어납니다. 안심하세요!
-                </p>
-              </div>
-            </FadeIn>
-          </div>
-        </section>
-
-        {/* 7. CAUTION */}
-        <section>
-          <FadeIn>
-            <div className="bg-white p-8 md:p-12 rounded-[2rem] border border-stone-100 shadow-sm relative overflow-hidden">
-              <div className="absolute right-0 bottom-0 opacity-5">
-                <AlertTriangle size={200} />
-              </div>
-              <h3 className="text-2xl font-bold text-stone-800 mb-8 flex items-center gap-3 relative z-10"><AlertTriangle className="text-red-400"/> 프로그램 진행 시 4대 주의사항</h3>
-              
-              <div className="grid md:grid-cols-2 gap-6 relative z-10">
-                <div className="interactive-card bg-[#FAF9F7] p-6 rounded-2xl">
-                  <Droplets className="text-sky-400 mb-3" size={24} />
-                  <strong className="text-stone-800 block mb-2">1. 물을 억지로 많이 마시지 마세요</strong>
-                  <p className="text-sm text-stone-600 leading-relaxed">과도한 수분 섭취는 몸의 온도 밸런스를 깨뜨려 심각한 '냉기'와 부종을 유발합니다. 물은 오직 갈증이 날 때만 소량씩 드세요.</p>
-                </div>
-                <div className="interactive-card bg-[#FAF9F7] p-6 rounded-2xl">
-                  <Wind className="text-emerald-400 mb-3" size={24} />
-                  <strong className="text-stone-800 block mb-2">2. 과도한 운동은 지양하세요</strong>
-                  <p className="text-sm text-stone-600 leading-relaxed">억지로 땀을 빼는 과격한 운동은 오히려 몸을 혹사시키고 지방을 꽉 움켜쥐게 만듭니다. 가벼운 스트레칭이나 산책만으로 충분합니다.</p>
-                </div>
-                <div className="interactive-card bg-[#FAF9F7] p-6 rounded-2xl">
-                  <Sun className="text-amber-400 mb-3" size={24} />
-                  <strong className="text-stone-800 block mb-2">3. 따뜻한 곳에서 푹 쉬어주세요</strong>
-                  <p className="text-sm text-stone-600 leading-relaxed">해독은 세포가 스스로 합니다. 뱃속을 따뜻하게 데워주시면, 나그네가 겉옷을 벗듯 몸이 스스로 독소와 지방을 폭발적으로 배출합니다.</p>
-                </div>
-                <div className="interactive-card bg-[#FAF9F7] p-6 rounded-2xl">
-                  <ShieldCheck className="text-rose-400 mb-3" size={24} />
-                  <strong className="text-stone-800 block mb-2">4. 복용 중인 약물이 있다면 사전 공유 필수</strong>
-                  <p className="text-sm text-stone-600 leading-relaxed">현재 정기적으로 드시는 병원 처방약(혈압/당뇨 등)이 있으신 경우, 무단으로 끊지 마시고 반드시 사전 상의하여 스케줄을 조절하세요.</p>
-                </div>
-              </div>
-            </div>
-          </FadeIn>
-        </section>
-
-        {/* 8. OUTRO */}
-        <section className="text-center pt-10 pb-10">
-          <FadeIn>
-            <h2 className="text-2xl md:text-3xl font-bold text-emerald-700 mb-6 leading-relaxed">
-              "알고 봤더니 다이어트와 건강 회복은<br className="md:hidden"/> 너무나 쉬운 거였구나."
-            </h2>
-            <p className="text-stone-500 text-[15px] md:text-lg leading-relaxed mb-8 font-medium">
-              19일 후, 고객님은 분명 이렇게 느끼시게 될 것입니다.<br/>
-              자연의 이치를 굳게 믿어주시고 가장 편안한 마음으로 이 여정을 즐겨주세요.<br/>
-              모든 과정은 저희 하트빌리지가 완벽하게 호위하겠습니다.
-            </p>
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white text-emerald-400 shadow-sm border border-stone-100">
-              <Leaf size={32} />
-            </div>
-          </FadeIn>
-        </section>
-
-      </main>
-    </div>
-  );
-}
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
